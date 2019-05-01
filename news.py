@@ -2,6 +2,7 @@
 import tweepy
 import config
 import json
+from nltk.tokenize import word_tokenize
 
 def getContext():
     auth = tweepy.OAuthHandler(config.Config.APP_NAME, config.Config.SECRET_KEY)
@@ -9,15 +10,26 @@ def getContext():
 
 def search(query):
     api = getContext()
-    results = api.search(query)
+    results = api.search(query,tweet_mode='extended')
 
-    return list(map(lambda x:{ 'date': x.created_at,'text': x.text,'user': x.user.name },results)) 
+    return list(map(lambda x:{ 'id': x.id,
+                                'date': x.created_at,
+                                'text': x.full_text,
+                                'user': x.user.name,                                 
+                                'user_power': x.user.followers_count 
+                                             + x.user.friends_count
+                                             + x.user.listed_count
+                                             + x.user.favourites_count,
+                                'lang':x.user.lang,
+                                 'power': x.retweet_count
+                                         + x.favorite_count
+                            },results)) 
 
 if __name__ == '__main__':
     results = search('PKOBP')
     for r in results:
-        print(r)
+        #print(word_tokenize(r.text))
+        print(r.text)
         print("\n")
     
-
     
