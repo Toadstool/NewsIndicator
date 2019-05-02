@@ -355,7 +355,7 @@ class PyDic(object):
 
 
 if __name__ == '__main__':    
-    sjp = PyDic('sjp.txt')
+    sjp = PyDic('sjp_clean.txt')
     print(sjp.word_base(u'telefonował'))
-    print(sjp.word_base(u'wariatkowo'))
+    print(sjp.a_word_base(u'wariatkowo'))
     print(sjp.word_base(u'takiegoSlowaNiema'))
