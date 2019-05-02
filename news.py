@@ -2,6 +2,7 @@
 import tweepy
 import config
 import json
+import nltk
 from nltk.tokenize import word_tokenize
 
 def getContext():
@@ -27,9 +28,9 @@ def search(query):
 
 if __name__ == '__main__':
     results = search('PKOBP')
-    for r in results:
-        #print(word_tokenize(r.text))
-        print(r.text)
+    for r in results:       
+        print(r['text']) 
+        print(word_tokenize(r['text']))
         print("\n")
     
     
