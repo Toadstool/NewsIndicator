@@ -11,7 +11,7 @@ def getLastWeekIntraday(symbol):
     items =  y['main']    
     return list(map(lambda x: [datetime.datetime.fromtimestamp(int(x[0])/1000), x[1] ], items))
 
-def getLastIntraday(days,symbol):
+def getLastIntraday(symbol,days):
 
     date_from = int(time.mktime((datetime.datetime.now() - datetime.timedelta(days=days)).timetuple())* 1000)
     date_to = int(time.mktime(datetime.datetime.now().timetuple())* 1000)
@@ -21,7 +21,7 @@ def getLastIntraday(days,symbol):
     items =  y['main']    
     return list(map(lambda x: [datetime.datetime.fromtimestamp(int(x[0])/1000), x[1] ], items))
 
-def getLastDays(days,symbol):
+def getLastDays(symbol,days):
 
     date_from = int(time.mktime((datetime.datetime.now() - datetime.timedelta(days=days)).timetuple())* 1000)
     date_to = int(time.mktime(datetime.datetime.now().timetuple())* 1000)
