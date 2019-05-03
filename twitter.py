@@ -8,18 +8,23 @@ class Twitt:
     date=None
     text = ''
     user = ''
-    user_power = 0
     lang = ''
+    user_power = 0
+    twitt_power= 0
     power = 0
+    
 
-    def __init__(self,id,date,text,user,user_power,lang,power):
+    def __init__(self,id,date,text,user,user_power,lang,twitt_power):
         self.id = id
         self.date = date
         self.text = text
         self.user = user
-        self.user_power = user_power
         self.lang = lang
-        self.power = power
+        self.user_power = user_power    
+        self.twitt_power = twitt_power
+        self.power = twitt_power + user_power
+        
+
 
 def getContext():
     auth = tweepy.OAuthHandler(config.Config.APP_NAME, config.Config.SECRET_KEY)
@@ -27,7 +32,7 @@ def getContext():
 
 def search(query):
     api = getContext()
-    results = api.search(query,tweet_mode='extended')
+    results = api.search(query,lang='pl',tweet_mode='extended')
     #for x in results:
     #    file_object = open('test/x.id', 'w')
     #    json.dump(x._json, file_object)
@@ -42,9 +47,7 @@ def search(query):
                     ,results)) 
 
 if __name__ == '__main__':
-    results = search('PKOBP')
-    for r in results:       
-        print(r.text)
-        print("\n")
+    results = search('pkn orlen')
+    print(str(len(results)))
     
     
