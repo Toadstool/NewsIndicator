@@ -11,6 +11,16 @@ def getLastWeekIntraday(symbol):
     items =  y['main']    
     return list(map(lambda x: [datetime.datetime.fromtimestamp(int(x[0])/1000), x[1] ], items))
 
+def getLastIntraday(days,symbol):
+
+    date_from = int(time.mktime((datetime.datetime.now() - datetime.timedelta(days=days)).timetuple())* 1000)
+    date_to = int(time.mktime(datetime.datetime.now().timetuple())* 1000)
+    url = 'https://www.bankier.pl/new-charts/get-data?date_from='+str(date_from)+'&date_to='+str(date_to)+'&symbol='+symbol+'&intraday=true&type=area'
+    resp = requests.get(url)    
+    y = json.loads(resp.text)
+    items =  y['main']    
+    return list(map(lambda x: [datetime.datetime.fromtimestamp(int(x[0])/1000), x[1] ], items))
+
 def getLastDays(days,symbol):
 
     date_from = int(time.mktime((datetime.datetime.now() - datetime.timedelta(days=days)).timetuple())* 1000)
@@ -20,7 +30,6 @@ def getLastDays(days,symbol):
     y = json.loads(resp.text)
     items =  y['main']    
     return list(map(lambda x: [datetime.datetime.fromtimestamp(int(x[0])/1000), x[1] ], items))
-
 
 if __name__ == '__main__':
     
