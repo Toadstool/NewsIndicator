@@ -2,6 +2,11 @@
 import tweepy
 import config
 import json
+from tweepy.binder import bind_api
+from tweepy.api import API
+from tweepy.parsers import ModelParser
+from tweepy.models import ResultSet, ModelFactory, Status
+
 
 class Twitt:
     id=0
@@ -24,20 +29,65 @@ class Twitt:
         self.twitt_power = twitt_power
         self.power = twitt_power + user_power
         
+class PremiumSearchResults(ResultSet):
+    next = None
 
+    @classmethod
+    def parse(cls, api, json):
 
-def getContext():
-    auth = tweepy.OAuthHandler(config.Config.APP_NAME, config.Config.SECRET_KEY)
-    return tweepy.API(auth) 
+        f = open('test.json','w',encoding="utf-8")
+        f.write(str(json))
+        metadata = json['requestParameters']
+        results = PremiumSearchResults()
+        results.next = json['next']
+        results.refresh_url = metadata.get('refresh_url')
+        results.completed_in = metadata.get('completed_in')
+        results.query = metadata.get('query')
+        results.count = metadata.get('count')
+        results.next_results = metadata.get('next_results')
+
+        status_model = getattr(api.parser.model_factory, 'status') if api else Status
+
+        for status in json['results']:
+            s= status_model.parse(api, status)
+            for k, v in status.items():
+                if k == 'retweeted_status':
+                    for k1, v1 in v.items():
+                        if k1 == 'extended_tweet':
+                            s.text = v1['full_text']
+                    
+           
+            results.append(s)
+        return results
+
+class PremiumModelFactory(ModelFactory):
+    premium_search_results = PremiumSearchResults
+
+class EAPI(API):
+    def __init__(self,auth_handler):
+        super().__init__(auth_handler,parser  = ModelParser(model_factory = PremiumModelFactory())) 
+    @property
+    def search30DEV(self):
+        return bind_api(
+                api= self,
+                path='/tweets/search/30day/DEV.json',
+                method='GET',
+                payload_type='premium_search_results',
+                allowed_param=['query', 'lang', 'locale', 'since_id', 'geocode',
+                           'max_id', 'since', 'until', 'result_type',
+                           'count', 'include_entities', 'from',
+                           'to', 'source','tweet_mode']                
+            )
+
 
 def search(query):
-    api = getContext()
-    results = api.search(query,lang='pl',tweet_mode='extended')
-    #for x in results:
-    #    file_object = open('test/x.id', 'w')
-    #    json.dump(x._json, file_object)
+    auth = tweepy.OAuthHandler(config.Config.APP_NAME, config.Config.SECRET_KEY)
+    api = EAPI(auth)
+    
 
-    return list(map(lambda x: Twitt(x.id,x.created_at,x.full_text,x.user.name,                                 
+    results = api.search30DEV(query)
+        
+    return list(map(lambda x: Twitt(x.id,x.created_at,x.text,x.user.name,                                 
                                     x.user.followers_count 
                                     + x.user.friends_count
                                     + x.user.listed_count
