@@ -2,6 +2,7 @@
 import tweepy
 import config
 import json
+import datetime
 from tweepy.binder import bind_api
 from tweepy.api import API
 from tweepy.parsers import ModelParser
@@ -34,9 +35,7 @@ class PremiumSearchResults(ResultSet):
 
     @classmethod
     def parse(cls, api, json):
-
-        f = open('test.json','w',encoding="utf-8")
-        f.write(str(json))
+        
         metadata = json['requestParameters']
         results = PremiumSearchResults()
         results.next = json['next']
@@ -84,10 +83,13 @@ def search(query):
     auth = tweepy.OAuthHandler(config.Config.APP_NAME, config.Config.SECRET_KEY)
     api = EAPI(auth)
     
+    today = datetime.date.today()
+    fromDate = (today + datetime.timedelta(days=-today.weekday(), weeks=1)).strftime("%Y%d%m")+'0000'
+    print(fromDate)
+    #results = api.search30DEV(query)
+    results = api.search(query,lang='pl',tweet_mode='extended',fromDate=fromDate)
 
-    results = api.search30DEV(query)
-        
-    return list(map(lambda x: Twitt(x.id,x.created_at,x.text,x.user.name,                                 
+    return list(map(lambda x: Twitt(x.id,x.created_at,x.full_text,x.user.name,                                 
                                     x.user.followers_count 
                                     + x.user.friends_count
                                     + x.user.listed_count
