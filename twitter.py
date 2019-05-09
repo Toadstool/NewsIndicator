@@ -3,13 +3,18 @@ import tweepy
 import config
 import json
 import datetime
+import os
+import sys
+import jsonpickle
 from tweepy.binder import bind_api
 from tweepy.api import API
 from tweepy.parsers import ModelParser
 from tweepy.models import ResultSet, ModelFactory, Status
 
 
-class Twitt:
+
+class Twitt():   
+   
     id=0
     date=None
     text = ''
@@ -79,17 +84,15 @@ class EAPI(API):
             )
 
 
-def search(query):
+def searchDEV(query):
     auth = tweepy.OAuthHandler(config.Config.APP_NAME, config.Config.SECRET_KEY)
     api = EAPI(auth)
     
     today = datetime.date.today()
-    fromDate = (today + datetime.timedelta(days=-today.weekday(), weeks=1)).strftime("%Y%d%m")+'0000'
-    print(fromDate)
-    #results = api.search30DEV(query)
-    results = api.search(query,lang='pl',tweet_mode='extended',fromDate=fromDate)
+    fromDate = (today - datetime.timedelta(days=6)).strftime("%Y%m%d")+'0000'      
+    results = api.search30DEV(query,fromDate= fromDate)
 
-    return list(map(lambda x: Twitt(x.id,x.created_at,x.full_text,x.user.name,                                 
+    return list(map(lambda x: Twitt(x.id,x.created_at,x.text,x.user.name,                                 
                                     x.user.followers_count 
                                     + x.user.friends_count
                                     + x.user.listed_count
@@ -98,8 +101,35 @@ def search(query):
                                     x.retweet_count+ x.favorite_count)
                     ,results)) 
 
+def search(query):
+
+    filePath = 'data/Twitter_Search_'+query+'_'+datetime.date.today().strftime("%Y%m%d") +'.json'
+    if os.path.isfile(filePath):        
+        with open(filePath) as json_file:  
+            return jsonpickle.loads(json_file.read())
+
+    
+    auth = tweepy.OAuthHandler(config.Config.APP_NAME, config.Config.SECRET_KEY)
+    api = EAPI(auth)
+    
+    today = datetime.date.today()    
+    fromDate = (today - datetime.timedelta(days=6)).strftime("%Y%m%d")+'0000'        
+    results = api.search(query,lang='pl',tweet_mode='extended',fromDate=fromDate)
+
+    data=  list(map(lambda x: Twitt(x.id,x.created_at,x.full_text,x.user.name,                                 
+                                    x.user.followers_count 
+                                    + x.user.friends_count
+                                    + x.user.listed_count
+                                    + x.user.favourites_count,
+                                    x.user.lang,
+                                    x.retweet_count+ x.favorite_count)
+                    ,results)) 
+    with open(filePath, 'w+') as outfile: 
+        outfile.write(jsonpickle.dumps(data))
+    return data
+
 if __name__ == '__main__':
     results = search('pkn orlen')
-    print(str(len(results)))
+    print(str(len(results)))    
     
     

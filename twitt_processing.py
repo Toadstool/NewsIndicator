@@ -5,7 +5,7 @@ import pydic
 class TwittProcessing:
     
     KeyWords= { 'PKNORLEN' : {
-                    'search': ['pkn orlen','pknorlen','ropa','paliwo','bęzyna'] ,
+                    'search': ['pkn orlen','ropa','paliwo'] ,
                     'ignore':['Piotr Małachowski','Adam Kszczot','Piotr Lisek','Adam Kszczot','Kubica','Mazurka Dąbrowskiego']
                     }
             }
@@ -23,21 +23,21 @@ class TwittProcessing:
     def normalization(self,text):
         if text and len(text)>0:
             tokenize =  word_tokenize(text)
-            base_token = []
+            normalized= ''
             for token in tokenize:
                 base = self.sjp.word_base(token)
                 if len(base)>0:
-                    base_token.append(base[0])
+                    normalized += base[0]+' '
                 else:
-                    base_token.append(token)
-            return base_token
+                    normalized += base[0]+' '
+            return normalized
 
     def download(self,companyCode):
         twitts = []
         if self.KeyWords[companyCode]:
             for keyWord in self.KeyWords[companyCode]['search']:
-                tws = twitter.search(keyWord)            
-                for t in tws:
+                tws = twitter.search(keyWord)                      
+                for t in tws:                    
                     if len(list(filter(lambda x: x.id==t.id, twitts)))<=0: 
                         twitts.append(t)
                 print(keyWord+ ' downloaded:'+str(len(tws))+', total:'+str(len(twitts)))
