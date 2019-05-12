@@ -23,6 +23,7 @@ class Twitt():
     user_power = 0
     twitt_power= 0
     power = 0
+    sentiment= 0
     
 
     def __init__(self,id,date,text,user,user_power,lang,twitt_power):
@@ -40,10 +41,14 @@ class PremiumSearchResults(ResultSet):
 
     @classmethod
     def parse(cls, api, json):
-        
-        metadata = json['requestParameters']
+                
         results = PremiumSearchResults()
-        results.next = json['next']
+        for k, v in json.items():
+            if k == 'requestParameters':
+                    metadata = v
+            if k == 'next':
+                    results.next = v
+
         results.refresh_url = metadata.get('refresh_url')
         results.completed_in = metadata.get('completed_in')
         results.query = metadata.get('query')
@@ -84,21 +89,26 @@ class EAPI(API):
             )
 
 
-def searchPremium(query):
+def searchPremium(query,date):
 
-    filePath = 'data/Twitter_SearchPremium_'+query+'_'+datetime.date.today().strftime("%Y%m%d") +'.json'
+    today = datetime.date.today()    
+    if date==None:
+           date =today.strftime("%Y%m%d")
+    filePath = 'data/Twitter_SearchPremium_'+query+'_'+date +'.json'
     if os.path.isfile(filePath):        
         with open(filePath) as json_file:  
             return jsonpickle.loads(json_file.read())
-
+    
+    print('twitter download '+query)  
     auth = tweepy.OAuthHandler(config.Config.APP_NAME, config.Config.SECRET_KEY)
     api = EAPI(auth)
     
-    today = datetime.date.today()
-    fromDate = (today - datetime.timedelta(days=6)).strftime("%Y%m%d")+'0000'      
+    
+    query = query+ ' lang:pl'
+    fromDate = (today - datetime.timedelta(days=7)).strftime("%Y%m%d")+'0000'      
     results = api.search30DEV(query,fromDate= fromDate)
-
-    data =  list(map(lambda x: Twitt(x.id,x.created_at,x.text,x.user.name,                                 
+    try:
+        data =  list(map(lambda x: Twitt(x.id,x.created_at,x.text,x.user.name,                                 
                                     x.user.followers_count 
                                     + x.user.friends_count
                                     + x.user.listed_count
@@ -106,10 +116,11 @@ def searchPremium(query):
                                     x.user.lang,
                                     x.retweet_count+ x.favorite_count)
                     ,results)) 
-    if results.next:
-        print(results.next)
-        results = api.search30DEV(query,fromDate= fromDate,next =results.next)
-        data.extend(list(map(lambda x: Twitt(x.id,x.created_at,x.text,x.user.name,                                 
+        while results.next:       
+            print(results.next)
+            print(str(results[0].created_at)) 
+            results = api.search30DEV(query,fromDate= fromDate,next =results.next)
+            data.extend(list(map(lambda x: Twitt(x.id,x.created_at,x.text,x.user.name,                                 
                                     x.user.followers_count 
                                     + x.user.friends_count
                                     + x.user.listed_count
@@ -117,23 +128,26 @@ def searchPremium(query):
                                     x.user.lang,
                                     x.retweet_count+ x.favorite_count)
                     ,results)))
-
+    except:
+         print(sys.exc_info()[0],"occured.")
+    
     with open(filePath, 'w+') as outfile: 
         outfile.write(jsonpickle.dumps(data))
     return data
 
-def search(query):
+def search(query,date):
 
-    filePath = 'data/Twitter_Search_'+query+'_'+datetime.date.today().strftime("%Y%m%d") +'.json'
+    today = datetime.date.today()    
+    if date==None:
+        date =today.strftime("%Y%m%d")
+    filePath = 'data/Twitter_Search_'+query+'_'+date +'.json'
     if os.path.isfile(filePath):        
         with open(filePath) as json_file:  
             return jsonpickle.loads(json_file.read())
 
-    
+    print('twitter download '+query)
     auth = tweepy.OAuthHandler(config.Config.APP_NAME, config.Config.SECRET_KEY)
     api = EAPI(auth)
-    
-    today = datetime.date.today()    
     fromDate = (today - datetime.timedelta(days=6)).strftime("%Y%m%d")+'0000'        
     results = api.search(query,lang='pl',tweet_mode='extended',fromDate=fromDate)
 
@@ -150,7 +164,10 @@ def search(query):
     return data
 
 if __name__ == '__main__':
-    results = search('pkn orlen')
-    print(str(len(results)))    
+    results = search('pkn orlen','20190512')
+    for r in results:
+        print(r.id)
+        #print(r.text)
+    print('len: ',str(len(results)))    
     
     

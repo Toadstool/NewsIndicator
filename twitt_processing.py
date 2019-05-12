@@ -1,12 +1,13 @@
 from nltk.tokenize import word_tokenize
 import twitter
+from twitter import Twitt
 import pydic
 
 class TwittProcessing:
     
     KeyWords= { 'PKNORLEN' : {
-                    'search': ['pkn orlen','ropa','paliwo'] ,
-                    'ignore':['Piotr Małachowski','Adam Kszczot','Piotr Lisek','Adam Kszczot','Kubica','Mazurka Dąbrowskiego']
+                    'search': ['pkn orlen','ropa'] ,
+                    'ignore':['Małachowski','Kszczot','Lisek','Kubica','Dąbrowskiego']
                     }
             }
 
@@ -32,27 +33,26 @@ class TwittProcessing:
                     normalized += base[0]+' '
             return normalized
 
-    def download(self,companyCode):
+    def download(self,companyCode,date):
         twitts = []
         if self.KeyWords[companyCode]:
             for keyWord in self.KeyWords[companyCode]['search']:
-                tws = twitter.search(keyWord)                      
-                for t in tws:                    
+                tws = twitter.searchPremium(keyWord,date)                      
+                for t in tws:                            
                     if len(list(filter(lambda x: x.id==t.id, twitts)))<=0: 
                         twitts.append(t)
                 print(keyWord+ ' downloaded:'+str(len(tws))+', total:'+str(len(twitts)))
         else:
-            for t in twitter.search(companyCode):
+            for t in twitter.search(companyCode,date):
                     if len(list(filter(lambda x: x.id==t.id, twitts)))<=0: 
                         twitts.append(t)
         return twitts
 
-
-    def indicator(self, companyCode):
+    def indicator(self, companyCode,date):
         processed = []
-        twitts = self.download(companyCode)
+        twitts = self.download(companyCode,date)
         for tw in twitts:
-            if self.ignore(companyCode,twitts.text):
+            if not self.ignore(companyCode,tw.text):
                 processed.append(tw)
         return processed
 
@@ -60,7 +60,8 @@ class TwittProcessing:
 if __name__ == '__main__':
    
     tw = TwittProcessing()
-    results = tw.download('PKNORLEN')
+    results = tw.indicator('PKNORLEN','20190512')
     print(len(results)) 
+    
         
 

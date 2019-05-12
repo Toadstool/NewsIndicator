@@ -2,6 +2,7 @@ import share_price as sp
 import matplotlib.pyplot as plt
 from matplotlib.ticker import Formatter
 import numpy as np
+from twitter import Twitt 
 
 class DateFormatter(Formatter):
     def __init__(self, dates, fmt='%Y-%m-%d'):
@@ -42,8 +43,8 @@ if __name__ == '__main__':
     import share_price
     from twitt_processing import TwittProcessing
 
-    sharePrice = share_price.getLastWeekIntraday('PKNORLEN')   
+    sharePrice = share_price.getLastWeekIntraday('PKNORLEN','20190512')   
     tw = TwittProcessing()
-    data= tw.download('PKNORLEN')
+    data= tw.download('PKNORLEN','20190512')
 
     plot2(sharePrice,data)
