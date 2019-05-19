@@ -36,24 +36,26 @@ def plot2(sharePrice,news) :
     ax2 = plt.subplot(312, sharex=ax1)
     ax1.set_title('share price')
     ax1.plot(list(map(lambda x: x[0],sharePrice)), list(map(lambda x: x[1],sharePrice)))
+    ax1.get_xaxis().set_visible(False)
+
     ax2.set_title('news power')
 
     maxdata = reduce(lambda x, y: y[0] if y[0]> x else x ,sharePrice,datetime.datetime.min)
     
 
-    d1 = list(filter(lambda x: x.ignore and x.date < maxdata,news))  
+    d1 = list(filter(lambda x: not x.ignore and x.sentiment==0  and x.date < maxdata,news))  
     if len(d1)>0: 
         ax2.scatter(list(map(lambda x: x.date,d1)), 
                 list(map(lambda x: x.power,d1)),
-                s = list(map(lambda x: ((abs(x.sentiment)+1)*5)**2,d1)),
+                s = list(map(lambda x: 10,d1)),
                 marker= 'o',
                 c='blue')
 
-    d2 = list(filter(lambda x: not x.ignore and x.sentiment==0 and x.date < maxdata,news))    
+    d2 = list(filter(lambda x: x.ignore and x.date < maxdata,news))    
     if len(d2)>0: 
         ax2.scatter(list(map(lambda x: x.date,d2)), 
                 list(map(lambda x: x.power,d2)),
-                s = list(map(lambda x: ((abs(x.sentiment)+1)*5)**2,d2)),
+                s = list(map(lambda x: 10,d2)),
                 marker= 's',
                 c='yellow')                
 

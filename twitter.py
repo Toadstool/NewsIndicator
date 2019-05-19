@@ -24,6 +24,7 @@ class Twitt():
     twitt_power= 0
     power = 0
     sentiment= 0
+    sentimentKeys = []
     ignore = False    
 
     def __init__(self,id,date,text,user,user_power,lang,twitt_power):
@@ -35,6 +36,9 @@ class Twitt():
         self.user_power = user_power    
         self.twitt_power = twitt_power
         self.power = twitt_power + user_power
+        self.sentiment =0
+        self.sentimentKeys = []
+        self.ignore = False
         
 class PremiumSearchResults(ResultSet):
     next = None

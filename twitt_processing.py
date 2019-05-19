@@ -10,7 +10,8 @@ class TwittProcessing:
                     'ignore':['bieg','sponsor','Małachowski','Wyciszkiewicz','Kszczot','Lisek','Kubica','Dąbrowskiego','RobertKubicaKlub','WilliamsRacing','Williams','AkademiiInwestowania'],
                     'sentiment':{
                         'kuluary':-1,
-                        'lepsza':1 
+                        'lepsza':1,
+                        'lepszy':1
                         }
                     },
                 'GRUPAAZOTY':{
@@ -46,11 +47,11 @@ class TwittProcessing:
             tokenize =  word_tokenize(text)
             normalized= ''
             for token in tokenize:
-                base = self.sjp.word_base(token)
+                base = self.sjp.a_word_base(token)
                 if len(base)>0:
-                    normalized += base[0]+' '
+                    normalized =normalized+ base[0]+' '
                 else:
-                    normalized += token+' '
+                    normalized =normalized+ token+' '
             return normalized
 
     def download(self,companyCode,date):
@@ -71,12 +72,19 @@ class TwittProcessing:
         
         twitts = self.download(companyCode,date)
         for tw in twitts:
+            tw.sentiment = 0
+            tw.sentimentKeys = []
             tw.text = self.normalization(tw.text)
             tw.ignore = self.ignore(companyCode,tw.text)
+            #print(tw.text)
             if not tw.ignore:
                 for k in self.KeyWords[companyCode]['sentiment'].keys():
-                    if k in tw.text:
-                        tw.sentiment = tw.sentiment + self.KeyWords[companyCode]['sentiment'][k]                        
+                    if tw.text.find(k)!=-1:
+                        tw.sentiment = tw.sentiment + self.KeyWords[companyCode]['sentiment'][k]                                             
+                        tw.sentimentKeys.append(k)                        
+                        #print(tw.text)
+                        #print(k)
+                        #print(str(self.KeyWords[companyCode]['sentiment'][k]))   
         return twitts
 
 if __name__ == '__main__':
@@ -84,6 +92,6 @@ if __name__ == '__main__':
     tw = TwittProcessing()
     results = tw.indicator('PKNORLEN','20190512')
     print(len(results)) 
-    
-        
-
+    for r in results:
+        if len(r.sentimentKeys)>0 or r.sentiment!=0 :
+            print(str(r.sentiment) +' '+str(r.sentimentKeys))
