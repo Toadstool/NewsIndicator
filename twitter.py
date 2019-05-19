@@ -24,7 +24,7 @@ class Twitt():
     twitt_power= 0
     power = 0
     sentiment= 0
-    
+    ignore = False    
 
     def __init__(self,id,date,text,user,user_power,lang,twitt_power):
         self.id = id

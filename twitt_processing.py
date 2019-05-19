@@ -7,8 +7,28 @@ class TwittProcessing:
     
     KeyWords= { 'PKNORLEN' : {
                     'search': ['pkn orlen','ropa'] ,
-                    'ignore':['Małachowski','Kszczot','Lisek','Kubica','Dąbrowskiego']
-                    }
+                    'ignore':['bieg','sponsor','Małachowski','Wyciszkiewicz','Kszczot','Lisek','Kubica','Dąbrowskiego','RobertKubicaKlub','WilliamsRacing','Williams','AkademiiInwestowania'],
+                    'sentiment':{
+                        'kuluary':-1,
+                        'lepsza':1 
+                        }
+                    },
+                'GRUPAAZOTY':{
+                    'search': ['azoty'],
+                    'ignore':['sponsor'],
+                    'sentiment':{
+                        'kuluary':-1,
+                        'lepsza':1 
+                        }
+                },
+                'CDPROJEKT':{
+                    'search': ['CD Projekt'],
+                    'ignore':['sponsor'],
+                    'sentiment':{
+                        'kuluary':-1,
+                        'lepsza':1 
+                        }
+                },
             }
 
     def __init__(self):
@@ -30,7 +50,7 @@ class TwittProcessing:
                 if len(base)>0:
                     normalized += base[0]+' '
                 else:
-                    normalized += base[0]+' '
+                    normalized += token+' '
             return normalized
 
     def download(self,companyCode,date):
@@ -40,8 +60,7 @@ class TwittProcessing:
                 tws = twitter.searchPremium(keyWord,date)                      
                 for t in tws:                            
                     if len(list(filter(lambda x: x.id==t.id, twitts)))<=0: 
-                        twitts.append(t)
-                print(keyWord+ ' downloaded:'+str(len(tws))+', total:'+str(len(twitts)))
+                        twitts.append(t)                
         else:
             for t in twitter.search(companyCode,date):
                     if len(list(filter(lambda x: x.id==t.id, twitts)))<=0: 
@@ -49,13 +68,16 @@ class TwittProcessing:
         return twitts
 
     def indicator(self, companyCode,date):
-        processed = []
+        
         twitts = self.download(companyCode,date)
         for tw in twitts:
-            if not self.ignore(companyCode,tw.text):
-                processed.append(tw)
-        return processed
-
+            tw.text = self.normalization(tw.text)
+            tw.ignore = self.ignore(companyCode,tw.text)
+            if not tw.ignore:
+                for k in self.KeyWords[companyCode]['sentiment'].keys():
+                    if k in tw.text:
+                        tw.sentiment = tw.sentiment + self.KeyWords[companyCode]['sentiment'][k]                        
+        return twitts
 
 if __name__ == '__main__':
    
