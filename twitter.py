@@ -64,12 +64,8 @@ class PremiumSearchResults(ResultSet):
         for status in json['results']:
             s= status_model.parse(api, status)
             for k, v in status.items():
-                if k == 'retweeted_status':
-                    for k1, v1 in v.items():
-                        if k1 == 'extended_tweet':
-                            s.text = v1['full_text']
-                    
-           
+                if k == 'extended_tweet':
+                    s.text = v['full_text']                               
             results.append(s)
         return results
 
