@@ -6,15 +6,16 @@ import os
 import matplotlib.pyplot as plt
 import jsonpickle
 
-def getLastWeekIntraday(symbol,date):
-    
+def getLastWeekIntraday(symbol,dateFrom,dateTo):
+    df = datetime.datetime.strptime(dateFrom,"%Y%m%d")  
     today = datetime.date.today()    
-    if date==None:
-        date =today.strftime("%Y%m%d")
-    filePath = 'data/LastWeekIntraday_'+symbol+'_'+date +'.json'
+    if dateTo==None:
+        dateTo =today.strftime("%Y%m%d")
+    filePath = 'data/LastWeekIntraday_'+symbol+'_'+dateTo +'.json'
     if os.path.isfile(filePath):
         with open(filePath) as json_file:  
-            return jsonpickle.loads(json_file.read())
+            data =  jsonpickle.loads(json_file.read())
+            return list(filter(lambda x: x[0]>=df, data))
 
     print('bankier download itraday')  
     url = 'https://www.bankier.pl/new-charts/get-data?symbol='+symbol+'&intraday=true&type=area'
@@ -24,7 +25,7 @@ def getLastWeekIntraday(symbol,date):
     data =  list(map(lambda x: [datetime.datetime.fromtimestamp(int(x[0])/1000), x[1] ], items))
     with open(filePath, 'w+') as outfile: 
         outfile.write(jsonpickle.dumps(data))
-    return data
+    return list(filter(lambda x: x[0]>=df, data))
 
 def getLastIntraday(symbol,days):
 
@@ -48,7 +49,7 @@ def getLastDays(symbol,days):
 
 if __name__ == '__main__':
     
-    data = getLastWeekIntraday('PKOBP')
+    data = getLastWeekIntraday('LPP','20190520','20190525')
     plt.plot(list(map(lambda x: x[0],data)),list(map(lambda x: x[1],data)))
     plt.show()
 

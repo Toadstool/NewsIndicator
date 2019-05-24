@@ -2,6 +2,7 @@ from nltk.tokenize import word_tokenize
 import twitter
 from twitter import Twitt
 import pydic
+import datetime
 
 class TwittProcessing:
     
@@ -89,23 +90,24 @@ class TwittProcessing:
                     normalized =normalized+ token+' '
             return normalized
 
-    def download(self,companyCode,date):
+    def download(self,companyCode,dateFrom,dateTo):
         twitts = []
         if self.KeyWords[companyCode]:
             for keyWord in self.KeyWords[companyCode]['search']:
-                tws = twitter.searchPremium(keyWord,date)                      
+                tws = twitter.searchPremium(keyWord,dateTo)                      
                 for t in tws:                            
                     if len(list(filter(lambda x: x.id==t.id, twitts)))<=0: 
                         twitts.append(t)                
         else:
-            for t in twitter.search(companyCode,date):
+            for t in twitter.search(companyCode,dateTo):
                     if len(list(filter(lambda x: x.id==t.id, twitts)))<=0: 
-                        twitts.append(t)
-        return twitts
+                        twitts.append(t)     
+        df = datetime.datetime.strptime(dateFrom,"%Y%m%d")    
+        return list(filter(lambda x: x.date>=df, twitts))
 
-    def indicator(self, companyCode,date):
+    def indicator(self, companyCode,dateFrom,dateTo):
         
-        twitts = self.download(companyCode,date)
+        twitts = self.download(companyCode,dateFrom,dateTo)
         for tw in twitts:
             tw.sentiment = 0
             tw.sentimentKeys = []
@@ -116,10 +118,7 @@ class TwittProcessing:
                 for k in self.KeyWords[companyCode]['sentiment'].keys():
                     if tw.text.find(k)!=-1:
                         tw.sentiment = tw.sentiment + self.KeyWords[companyCode]['sentiment'][k]                                             
-                        tw.sentimentKeys.append(k)                        
-                        #print(tw.text)
-                        #print(k)
-                        #print(str(self.KeyWords[companyCode]['sentiment'][k]))   
+                        tw.sentimentKeys.append(k)                                                  
         return twitts
 
 if __name__ == '__main__':
