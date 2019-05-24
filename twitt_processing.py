@@ -30,6 +30,41 @@ class TwittProcessing:
                         'lepsza':1 
                         }
                 },
+                'CCC':{
+                    'search': ['CCC SA'],
+                    'ignore':['sponsor'],
+                    'sentiment':{
+                        'kuluary':-1,
+                        'lepsza':1 
+                        }
+                },
+                'DINOPL':{
+                    'search': ['Dino Polska'],
+                    'ignore':['sponsor'],
+                    'sentiment':{
+                        'kuluary':-1,
+                        'lepsza':1 
+                        }
+                },
+                'LPP':{
+                    'search': ['LPP','Reserved', 'House', 'Cropp', 'Mohito'],
+                    'ignore':['sponsor'],
+                    'sentiment':{
+                        'kuluary':-1,
+                        'lepsza':1 
+                        }
+                },
+                'MBANK':{
+                    'search': ['MBANK'],
+                    'ignore':['sponsor'],
+                    'sentiment':{
+                        'kuluary':-1,
+                        'lepsza':1 
+                        }
+                },
+                'WPROST_TOP3':{
+                    'search': ['Jarosław Kaczyński','Mateusz Morawiecki','Donald Tusk']
+                }
             }
 
     def __init__(self):

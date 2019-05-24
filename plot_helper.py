@@ -85,8 +85,8 @@ if __name__ == '__main__':
     import share_price
     from twitt_processing import TwittProcessing
 
-    sharePrice = share_price.getLastWeekIntraday('PKNORLEN','20190512')   
+    sharePrice = share_price.getLastWeekIntraday('LPP','20190525')   
     tw = TwittProcessing()
-    data= tw.download('PKNORLEN','20190512')
+    data= tw.download('WPROST_TOP3','20190525')
 
     plot2(sharePrice,data)
