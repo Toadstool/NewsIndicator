@@ -18,6 +18,7 @@ class Twitt():
     id=0
     date=None
     text = ''
+    tokens = ''
     user = ''
     lang = ''
     user_power = 0

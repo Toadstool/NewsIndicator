@@ -111,12 +111,11 @@ class TwittProcessing:
         for tw in twitts:
             tw.sentiment = 0
             tw.sentimentKeys = []
-            tw.text = self.normalization(tw.text)
-            tw.ignore = self.ignore(companyCode,tw.text)
-            #print(tw.text)
+            tw.tokens = self.normalization(tw.text)
+            tw.ignore = self.ignore(companyCode,tw.tokens)            
             if not tw.ignore:
                 for k in self.KeyWords[companyCode]['sentiment'].keys():
-                    if tw.text.find(k)!=-1:
+                    if tw.tokens.find(k)!=-1:
                         tw.sentiment = tw.sentiment + self.KeyWords[companyCode]['sentiment'][k]                                             
                         tw.sentimentKeys.append(k)                                                  
         return twitts
